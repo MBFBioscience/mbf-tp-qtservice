@@ -35,9 +35,12 @@ else()
   list(APPEND QTSERVICE_FILES_SRC qtservice_unix.cpp qtunixserversocket.cpp qtunixsocket.cpp)
 endif()
 
-file (GLOB QTSERVICE_FILES_HDR
-  RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
-  *.h)
+list(APPEND QTSERVICE_FILES_HDR qtservice.h qtservice_qobjects.h qtservice_p.h)
+if(MSVC)
+  list(APPEND QTSERVICE_FILES_HDR qtservice_qobjects_win.h)
+else()
+  list(APPEND QTSERVICE_FILES_HDR qtservice_qobjects_unix.h qtunixsocket.h qtunixserversocket.h)
+endif()
 
 ################################################################################
 # Link libraries

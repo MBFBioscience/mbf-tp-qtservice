@@ -41,9 +41,9 @@
 #ifndef QTSERVICE_H
 #define QTSERVICE_H
 
-#include <QCoreApplication>
+#include <QtCore/QCoreApplication>
 
-#if defined(Q_OS_WIN)
+#if defined(_WIN32)
 #  if !defined(QT_QTSERVICE_EXPORT) && !defined(QT_QTSERVICE_IMPORT)
 #    define QT_QTSERVICE_EXPORT
 #  elif defined(QT_QTSERVICE_IMPORT)
@@ -59,7 +59,8 @@
 #  define QT_QTSERVICE_EXPORT
 #endif
 
-class QStringList;
+#include <QtCore/QString>
+
 class QtServiceControllerPrivate;
 
 class QT_QTSERVICE_EXPORT QtServiceController

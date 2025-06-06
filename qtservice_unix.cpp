@@ -40,14 +40,14 @@
 
 #include "qtservice.h"
 #include "qtservice_p.h"
-#include "qtservice_qobjects_unix.h"	// MBF Modification
+#include "qtservice_qobjects_unix.h"
 #include "qtunixsocket.h"
 #include "qtunixserversocket.h"
-#include <QCoreApplication>
-#include <QStringList>
-#include <QFile>
-#include <QTimer>
-#include <QDir>
+#include <QtCore/QCoreApplication>
+#include <QtCore/QStringList>
+#include <QtCore/QFile>
+#include <QtCore/QTimer>
+#include <QtCore/QDir>
 #include <pwd.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -56,9 +56,9 @@
 #include <syslog.h>
 #include <signal.h>
 #include <sys/stat.h>
-#include <QMap>
-#include <QSettings>
-#include <QProcess>
+#include <QtCore/QMap>
+#include <QtCore/QSettings>
+#include <QtCore/QProcess>
 
 static QString encodeName(const QString &name, bool allowUpper = false)
 {

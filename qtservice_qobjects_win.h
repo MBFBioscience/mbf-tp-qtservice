@@ -2,7 +2,7 @@
 #ifndef QTSERVICE_QOBJECTS_WIN_H
 #define QTSERVICE_QOBJECTS_WIN_H
 
-#include <QObject>
+#include <QtCore/QObject>
 
 class QtServiceControllerHandler : public QObject
 {

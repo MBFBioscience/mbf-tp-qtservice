@@ -40,25 +40,21 @@
 
 #include "qtservice.h"
 #include "qtservice_p.h"
-#include "qtservice_qobjects.h"	// MBF Modification
-#include <QCoreApplication>
+#include "qtservice_qobjects.h"
+#include <QtCore/QCoreApplication>
 #include <stdio.h>
-#include <QTimer>
-#include <QVector>
-#include <QProcess>
+#include <QtCore/QTimer>
+#include <QtCore/QVector>
+#include <QtCore/QProcess>
+#include <QtCore/QFile>
+#include <QtCore/QTime>
+#include <QtCore/QMutex>
+#include <QtCore/QString>
 
 #if defined(QTSERVICE_DEBUG)
-#include <QDebug>
-#include <QString>
-#include <QFile>
-#include <QTime>
-#include <QMutex>
-#if defined(Q_OS_WIN32)
-#include <qt_windows.h>
-#else
+#include <QtCore/QDebug>
 #include <unistd.h>
 #include <stdlib.h>
-#endif
 
 static QFile* f = 0;
 
@@ -82,7 +78,7 @@ void qtServiceLogDebug(QtMsgType type, const char* msg)
 {
     static QMutex mutex;
     QMutexLocker locker(&mutex);
-#if defined(Q_OS_WIN32)
+#if defined(_WIN3232)
     const qulonglong processId = GetCurrentProcessId();
 #else
     const qulonglong processId = getpid();
@@ -93,7 +89,7 @@ void qtServiceLogDebug(QtMsgType type, const char* msg)
     s += "] ";
 
     if (!f) {
-#if defined(Q_OS_WIN32)
+#if defined(_WIN3232)
         f = new QFile("c:/service-debuglog.txt");
 #else
         f = new QFile("/tmp/service-debuglog.txt");
@@ -432,8 +428,6 @@ bool QtServiceController::start()
 // private:
 //     QtServiceBasePrivate *d_ptr;
 // };
-//#include "qtservice.moc"	// MBF Modification
-#include "moc_qtservice_qobjects.cpp"
 
 QtServiceBase *QtServiceBasePrivate::instance = 0;
 
@@ -665,8 +659,8 @@ QtServiceBase::QtServiceBase(int argc, char **argv, const QString &name)
     d_ptr = new QtServiceBasePrivate(nm);
     d_ptr->q_ptr = this;
 
-    d_ptr->serviceFlags = 0;
-    d_ptr->sysd = 0;
+    d_ptr->serviceFlags = ServiceFlag::Default;
+    d_ptr->sysd = nullptr;
     for (int i = 0; i < argc; ++i)
         d_ptr->args.append(QString::fromLocal8Bit(argv[i]));
 }

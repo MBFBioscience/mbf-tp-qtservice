@@ -41,27 +41,29 @@
 #include "qtservice.h"
 #include "qtservice_p.h"
 #include "qtservice_qobjects_win.h"	// MBF Modification
-#include <QCoreApplication>
-#include <QDateTime>
-#include <QFile>
-#include <QLibrary>
-#include <QMutex>
-#include <QSemaphore>
-#include <QProcess>
-#include <QSettings>
-#include <QTextStream>
-#include <qt_windows.h>
-#include <QWaitCondition>
-#include <QAbstractEventDispatcher>
-#include <QVector>
-#include <QThread>
-//#if QT_VERSION >= 0x050000 // MBF Modification
-#  include <QAbstractNativeEventFilter>
-//#endif
+#include <QtCore/QCoreApplication>
+#include <QtCore/QDateTime>
+#include <QtCore/QFile>
+#include <QtCore/QLibrary>
+#include <QtCore/QMutex>
+#include <QtCore/QSemaphore>
+#include <QtCore/QProcess>
+#include <QtCore/QSettings>
+#include <QtCore/QTextStream>
+#include <QtCore/QWaitCondition>
+#include <QtCore/QAbstractEventDispatcher>
+#include <QtCore/QVector>
+#include <QtCore/QThread>
+#include <QtCore/QAbstractNativeEventFilter>
 #include <stdio.h>
 #if defined(QTSERVICE_DEBUG)
-#include <QDebug>
+#include <QtCore/QDebug>
 #endif
+
+#ifdef _MSC_VER
+#define _WINSOCKAPI_ // stops windows.h including winsock.h
+#include <windows.h>
+#endif 
 
 typedef SERVICE_STATUS_HANDLE(WINAPI*PRegisterServiceCtrlHandler)(const wchar_t*,LPHANDLER_FUNCTION);
 static PRegisterServiceCtrlHandler pRegisterServiceCtrlHandler = 0;
@@ -199,7 +201,7 @@ QString QtServiceController::serviceFilePath() const
             char data[8 * 1024];
             if (pQueryServiceConfig(hService, (LPQUERY_SERVICE_CONFIG)data, 8 * 1024, &sizeNeeded)) {
                 LPQUERY_SERVICE_CONFIG config = (LPQUERY_SERVICE_CONFIG)data;
-                result = QString::fromUtf16((const ushort*)config->lpBinaryPathName);
+                result = QString::fromUtf16((char16_t*)config->lpBinaryPathName);
             }
             pCloseServiceHandle(hService);
         }
@@ -232,7 +234,7 @@ QString QtServiceController::serviceDescription() const
                     &dwBytesNeeded)) {
                 LPSERVICE_DESCRIPTION desc = (LPSERVICE_DESCRIPTION)data;
                 if (desc->lpDescription)
-                    result = QString::fromUtf16((const ushort*)desc->lpDescription);
+                    result = QString::fromUtf16((char16_t*)desc->lpDescription);
             }
             pCloseServiceHandle(hService);
         }
@@ -465,19 +467,6 @@ void QtServiceBase::logMessage(const QString &message, MessageType type,
     }
 }
 
-// class QtServiceControllerHandler : public QObject
-// {
-//     Q_OBJECT
-// public:
-//     QtServiceControllerHandler(QtServiceSysPrivate *sys);
-// 
-// protected:
-//     void customEvent(QEvent *e);
-// 
-// private:
-//     QtServiceSysPrivate *d_sys;
-// };
-
 class QtServiceSysPrivate
 {
 public:
@@ -549,7 +538,7 @@ void WINAPI QtServiceSysPrivate::serviceMain(DWORD dwArgc, wchar_t** lpszArgv)
     // in the main thread to go ahead with start()'ing the service.
 
     for (DWORD i = 0; i < dwArgc; i++)
-        instance->serviceArgs.append(QString::fromUtf16((unsigned short*)lpszArgv[i]));
+        instance->serviceArgs.append(QString::fromUtf16((char16_t*)lpszArgv[i]));
 
     instance->startSemaphore.release(); // let the qapp creation start
     instance->startSemaphore2.acquire(); // wait until its done
@@ -689,10 +678,6 @@ DWORD QtServiceSysPrivate::serviceFlags(QtServiceBase::ServiceFlags flags) const
     return control;
 }
 
-#include "moc_qtservice_qobjects_win.cpp"	// MBF Modification
-//#include "qtservice_win.moc"
-
-
 class HandlerThread : public QThread
 {
 public:
@@ -739,10 +724,10 @@ class QtServiceAppEventFilter : public QAbstractNativeEventFilter
 {
 public:
     QtServiceAppEventFilter() {}
-    bool nativeEventFilter(const QByteArray &eventType, void *message, long *result);
+    bool nativeEventFilter(const QByteArray &eventType, void *message, qintptr* result);
 };
 
-bool QtServiceAppEventFilter::nativeEventFilter(const QByteArray &, void *message, long *result)
+bool QtServiceAppEventFilter::nativeEventFilter(const QByteArray &, void *message, qintptr*result)
 {
     MSG *winMessage = (MSG*)message;
     if (winMessage->message == WM_ENDSESSION && (winMessage->lParam & ENDSESSION_LOGOFF)) {
@@ -910,7 +895,7 @@ QString QtServiceBasePrivate::filePath() const
 {
     wchar_t path[_MAX_PATH];
     ::GetModuleFileNameW( 0, path, sizeof(path) );
-    return QString::fromUtf16((unsigned short*)path);
+    return QString::fromUtf16((char16_t*)path);
 }
 
 bool QtServiceBasePrivate::sysInit()

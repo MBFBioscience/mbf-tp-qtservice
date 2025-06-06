@@ -2,7 +2,8 @@
 #ifndef QTSERVICE_QOBJECTS_H
 #define QTSERVICE_QOBJECTS_H
 
-#include <QObject>
+#include <QtCore/QObject>
+#include "qtservice_p.h"
 
 class QtServiceStarter : public QObject
 {

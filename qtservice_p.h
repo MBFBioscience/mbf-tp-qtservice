@@ -41,7 +41,7 @@
 #ifndef QTSERVICE_P_H
 #define QTSERVICE_P_H
 
-#include <QStringList>
+#include <QtCore/QStringList>
 #include "qtservice.h"
 
 class QtServiceControllerPrivate
